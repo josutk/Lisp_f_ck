@@ -3,22 +3,21 @@ import ox
 lexer = ox.make_lexer([
     ('DIRECAO',r'[><]'),
     ('OP',r'[-+]'),
-    ('PONTO',r'[.]'),
+    ('PONTO',r'.'),
     ('VIRGULA', r'[,]'),
     ('COMENTARIO', r'^;([A-Za-z0-9]+)?'),
-    ('CONCHETE_A', r'\('),
-    ('CONCHETE_f', r'\)'),
+    ('PARENTESE_A', r'\('),
+    ('PARENTESE_F', r'\)'),
     ('DO',r'(do)')
+    ('DEF', r'(def)')
 
 ])
-tokens = ['VIRGULA','DIRECAO', 'OP','PONTO', 'COMENTARIO','CONCHETE_f','CONCHETE_A','DO']
+tokens = ['DEF','VIRGULA','DIRECAO', 'OP','PONTO', 'COMENTARIO','PARENTESE_F','PARENTESE_A','DO']
 
 def read(a):
     a = input('valor: ')
     return a
 
-def print_valor(a):
-    print(a)
 
 parser = ox.make_parser([
     ('read : VIRGULA', read),
