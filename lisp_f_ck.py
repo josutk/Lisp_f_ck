@@ -1,18 +1,22 @@
 import ox
 
 lexer = ox.make_lexer([
-    ('DIRECAO',r'[><]'),
-    ('OP',r'[-+]'),
-    ('PONTO',r'.'),
-    ('VIRGULA', r'[,]'),
-    ('COMENTARIO', r'^;([A-Za-z0-9]+)?'),
+    ('RIGHT', r'right'), # > in brainfuck
+    ('LEFT', r'left'), # < in brainfuck
+    ('INC', r'inc'), # + in brainfuck
+    ('DEC', r'dec'), # - in brainfuck
+    ('PRINT', r'print'), # . in brainfuck
+    ('READ', r'read'), # , in brainfuck
+    ('DO',r'do'),
+    ('DEF', r'def'),
     ('PARENTESE_A', r'\('),
     ('PARENTESE_F', r'\)'),
-    ('DO',r'(do)')
-    ('DEF', r'(def)')
-
+    ('LOOP', r'loop'), # [] in brainfuck
+    ('COMENTARIO', r'^;([A-Za-z0-9]+)?'),
 ])
-tokens = ['DEF','VIRGULA','DIRECAO', 'OP','PONTO', 'COMENTARIO','PARENTESE_F','PARENTESE_A','DO']
+
+tokens = ['RIGHT', 'LEFT', 'INC', 'DEC', 'PRINT', 'LOOP', 'READ','DEF',
+            'COMENTARIO','PARENTESE_F','PARENTESE_A','DO']
 
 def read(a):
     a = input('valor: ')
@@ -20,7 +24,11 @@ def read(a):
 
 
 parser = ox.make_parser([
-    ('read : VIRGULA', read),
+    #('program : DO expr', None),
+    #('expr: loop | operators', None),
+    ('read : READ', read),
+    #('loop : LOOP operators', None),
+    #('operators : RIGHT | LEFT | INC | DEC | PRINT | READ', None),
 ], tokens)
 
 
@@ -28,4 +36,4 @@ st = input('expr: ')
 tokens = lexer(st)
 res = parser(tokens)
 print('tokens:', tokens)
-print('res:', res)
+print('res:', res) # Abstract syntax tree
