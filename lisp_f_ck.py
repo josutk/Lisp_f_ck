@@ -1,4 +1,5 @@
 import ox
+import click
 
 lexer = ox.make_lexer([
     ('RIGHT', r'right'), # > in brainfuck
@@ -8,32 +9,55 @@ lexer = ox.make_lexer([
     ('PRINT', r'print'), # . in brainfuck
     ('READ', r'read'), # , in brainfuck
     ('DO',r'do'),
+    ('ADD',r'add'),
+    ('SUB',r'sub'),
+    ('LOOP', r'loop'), # [] in brainfuck
     ('DEF', r'def'),
+    ('NUMBER', r'\d+'),
     ('PARENTESE_A', r'\('),
     ('PARENTESE_F', r'\)'),
-    ('LOOP', r'loop'), # [] in brainfuck
-    ('COMENTARIO', r'^;([A-Za-z0-9]+)?'),
+    ('COMMENT', r';.*'),
+    ('NEWLINE', r'\n'),
+    ('SPACE', r'\s+')
 ])
 
-tokens = ['RIGHT', 'LEFT', 'INC', 'DEC', 'PRINT', 'LOOP', 'READ','DEF',
-            'COMENTARIO','PARENTESE_F','PARENTESE_A','DO']
+tokens = ['RIGHT', 'LEFT', 'INC', 'DEC', 'SUB', 'ADD', 'NUMBER','PRINT', 'LOOP',
+            'READ','DEF','COMMENT','PARENTESE_F','PARENTESE_A','DO']
 
-def read(a):
-    a = input('valor: ')
-    return a
-
-
+operator = lambda type_op: ('operator', type_op)
+op = lambda op, x: (op, x)
+#expr = lambda x, y: (x, y)
 parser = ox.make_parser([
-    #('program : DO expr', None),
-    #('expr: loop | operators', None),
-    ('read : READ', read),
-    #('loop : LOOP operators', None),
-    #('operators : RIGHT | LEFT | INC | DEC | PRINT | READ', None),
+    #('program : program PARENTESE_A program PARENTESE_F', lambda x, op, y: (op, x, y))
+    #('program : PARENTESE_A DO expr PARENTESE_F', lambda x,y,z,w: (z)),
+    ('expr : expr operator', lambda x,y: (x,y)),
+    ('expr : PARENTESE_A expr PARENTESE_F', lambda x,y,z: y),
+    ('expr : PARENTESE_A operator PARENTESE_F', lambda x,y,z: y),
+    ('expr : operator', lambda x: x),
+    ('operator : LOOP', operator),
+    ('operator : RIGHT', operator),
+    ('operator : LEFT', operator),
+    ('operator : READ', operator),
+    ('operator : INC', operator),
+    ('operator : DEC', operator),
+    ('operator : PRINT', operator),
+    ('operator : ADD NUMBER', op),
+    ('operator : SUB NUMBER', op),
 ], tokens)
 
+@click.command()
+@click.argument('source', type=click.File('r'))
+def make_tree(source):
+    program = source.read()
+    print(program)
+    tokens = lexer(program)
+    print('tokens:', tokens)
 
-st = input('expr: ')
-tokens = lexer(st)
-res = parser(tokens)
-print('tokens:', tokens)
-print('res:', res) # Abstract syntax tree
+    # removing space and comment tokens before passing list to parser
+    parser_tokens = [token for token in tokens if token.type != 'COMMENT' and token.type != 'SPACE']
+    print(parser_tokens)
+    tree = parser(parser_tokens)
+    print('tree:', tree) # Abstract syntax tree
+
+if __name__ == '__main__':
+    make_tree()

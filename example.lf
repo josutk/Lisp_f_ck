@@ -1,0 +1,4 @@
+
+  ; Inicializa os números 2 e 3
+  (add 3)
+  right
