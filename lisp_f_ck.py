@@ -26,13 +26,17 @@ tokens = ['RIGHT', 'LEFT', 'INC', 'DEC', 'SUB', 'ADD', 'NUMBER','PRINT', 'LOOP',
 
 operator = lambda type_op: ('operator', type_op)
 op = lambda op, x: (op, x)
+
 #expr = lambda x, y: (x, y)
 parser = ox.make_parser([
-    #('program : program PARENTESE_A program PARENTESE_F', lambda x, op, y: (op, x, y))
-    #('program : PARENTESE_A DO expr PARENTESE_F', lambda x,y,z,w: (z)),
-    ('expr : expr operator', lambda x,y: (x,y)),
+    #('program : PARENTESE_A DO expr expr PARENTESE_F ',)
+    #('program : PARENTESE_A DO expr expr PARENTESE_F ', lambda a,b,c,d,e: (b,c,d)),
+    ('program : PARENTESE_A DO expr  PARENTESE_F', lambda x,y,z,w: (y,z)),
+    ('expr : expr expr', lambda x,y: (x,y)),
+    ('expr : expr', lambda x: x),
     ('expr : PARENTESE_A expr PARENTESE_F', lambda x,y,z: y),
     ('expr : PARENTESE_A operator PARENTESE_F', lambda x,y,z: y),
+    ('expr : expr operator', lambda x,y: (x,y)),
     ('expr : operator', lambda x: x),
     ('operator : LOOP', operator),
     ('operator : RIGHT', operator),
@@ -51,11 +55,11 @@ def make_tree(source):
     program = source.read()
     print(program)
     tokens = lexer(program)
-    print('tokens:', tokens)
+    #print('tokens:', tokens)
 
     # removing space and comment tokens before passing list to parser
     parser_tokens = [token for token in tokens if token.type != 'COMMENT' and token.type != 'SPACE']
-    print(parser_tokens)
+    #print(parser_tokens)
     tree = parser(parser_tokens)
     print('tree:', tree) # Abstract syntax tree
 
