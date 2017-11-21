@@ -1,4 +1,0 @@
-
-  ; Inicializa os números 2 e 3
-  (do (add 3))
-  right
